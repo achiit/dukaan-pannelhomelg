@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LuckyPay Command</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+body{font-family:'Fredoka',sans-serif;background:#f0fdf4;color:#0a2e1c;min-height:100vh;padding:16px;display:flex;justify-content:center;}
+.wrap{width:100%;max-width:600px;padding-bottom:30px;}
+
+.title{font-size:22px;font-weight:800;color:#0a6b2f;text-align:center;margin-bottom:6px;}
+.sub{font-size:12.5px;font-weight:600;color:#5c7a68;text-align:center;margin-bottom:18px;line-height:1.5;}
+
+.card{background:#fff;border:2px solid #4ade80;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 4px 0 #4ade80;}
+.card h3{font-size:14px;font-weight:800;color:#0a6b2f;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card h3 i{color:#16a34a;}
+
+.cmd{background:#f0fdf4;border:1.5px solid #4ade80;border-radius:12px;padding:11px 12px;margin-bottom:8px;}
+.cmd:last-child{margin-bottom:0;}
+.cmd-name{font-size:13px;font-weight:800;color:#0a6b2f;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.cmd-name i{color:#16a34a;font-size:12px;}
+
+.inp{width:100%;border:2px solid #4ade80;border-radius:10px;padding:9px 11px;font-family:'Fredoka',sans-serif;font-size:13px;font-weight:600;background:#fff;color:#0a2e1c;outline:none;margin-bottom:6px;}
+.inp:focus{border-color:#16a34a;box-shadow:0 0 0 3px rgba(34,197,94,.15);}
+.inp::placeholder{color:#86efac;font-weight:500;}
+
+.cmd-preview{background:#fff;border:2px dashed #86efac;border-radius:10px;padding:9px 11px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;color:#0a6b2f;word-break:break-all;line-height:1.5;margin-bottom:8px;min-height:36px;}
+
+.btn-row{display:flex;gap:6px;}
+.btn{flex:1;border:0;border-radius:10px;padding:11px 8px;font-family:'Fredoka',sans-serif;font-weight:800;font-size:12px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.1s;}
+.btn:active{transform:translateY(2px);}
+.btn-copy{background:linear-gradient(180deg,#4ade80,#16a34a);box-shadow:0 3px 0 #0a6b2f;}
+.btn-tg{background:linear-gradient(180deg,#2aabee,#1e88c7);box-shadow:0 3px 0 #0e5a8a;}
+.btn-clear{background:linear-gradient(180deg,#94a3b8,#475569);box-shadow:0 3px 0 #1e293b;}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,150%);background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff;font-weight:700;font-size:13px;padding:12px 20px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:6000;transition:.3s;max-width:calc(100% - 40px);display:flex;align-items:center;gap:8px;}
+#toast.show{transform:translate(-50%,0);}
+#toast.error{background:linear-gradient(180deg,#f87171,#dc2626);}
+#toast.copy{background:linear-gradient(180deg,#fbbf24,#b45309);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="title">🎁 LuckyPay Command</div>
+<div class="sub">Data bharo → Copy dabao → Telegram khule → Paste karke bhejo</div>
+
+<!-- ========== COUPON ADD ========== -->
+<div class="card">
+  <h3><i class="fa-solid fa-gift"></i> New Coupon Add Karo</h3>
+  
+  <div class="cmd">
+    <div class="cmd-name"><i class="fa-solid fa-image"></i> Image URL</div>
+    <input class="inp" id="addImage" placeholder="https://example.com/image.jpg" oninput="updateAdd()">
+    
+    <div class="cmd-name"><i class="fa-solid fa-heading"></i> Title</div>
+    <input class="inp" id="addTitle" placeholder="₹50 Claim" oninput="updateAdd()">
+    
+    <div class="cmd-name"><i class="fa-solid fa-align-left"></i> Description</div>
+    <input class="inp" id="addDesc" placeholder="Diwali offer" oninput="updateAdd()">
+    
+    <div class="cmd-name"><i class="fa-solid fa-link"></i> Link (optional)</div>
+    <input class="inp" id="addLink" placeholder="https://yoursite.com" oninput="updateAdd()">
+    
+    <div class="cmd-preview" id="addPreview">couponadd ...</div>
+    
+    <div class="btn-row">
+      <button class="btn btn-clear" onclick="clearAdd()"><i class="fa-solid fa-eraser"></i> Clear</button>
+      <button class="btn btn-tg" onclick="runCmd('add')"><i class="fa-solid fa-copy"></i> Copy & TG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== EXPIRE ========== -->
+<div class="card">
+  <h3><i class="fa-solid fa-clock"></i> Expire Karo</h3>
+  
+  <div class="cmd">
+    <div class="cmd-name"><i class="fa-solid fa-tag"></i> Coupon Title / Code</div>
+    <input class="inp" id="expTitle" placeholder="₹50 Claim  ya  all" oninput="updateExp()">
+    
+    <div class="cmd-preview" id="expPreview">couponexpire ...</div>
+    
+    <div class="btn-row">
+      <button class="btn btn-clear" onclick="document.getElementById('expTitle').value='';updateExp();"><i class="fa-solid fa-eraser"></i> Clear</button>
+      <button class="btn btn-tg" onclick="runCmd('exp')"><i class="fa-solid fa-copy"></i> Copy & TG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SOON ========== -->
+<div class="card">
+  <h3><i class="fa-solid fa-hourglass-half"></i> Coming Soon</h3>
+  
+  <div class="cmd">
+    <div class="cmd-name"><i class="fa-solid fa-tag"></i> Coupon Title / Code</div>
+    <input class="inp" id="soonTitle" placeholder="₹100 Cashback" oninput="updateSoon()">
+    
+    <div class="cmd-preview" id="soonPreview">couponsoon ...</div>
+    
+    <div class="btn-row">
+      <button class="btn btn-clear" onclick="document.getElementById('soonTitle').value='';updateSoon();"><i class="fa-solid fa-eraser"></i> Clear</button>
+      <button class="btn btn-tg" onclick="runCmd('soon')"><i class="fa-solid fa-copy"></i> Copy & TG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ACTIVE ========== -->
+<div class="card">
+  <h3><i class="fa-solid fa-circle-check"></i> Wapas Active</h3>
+  
+  <div class="cmd">
+    <div class="cmd-name"><i class="fa-solid fa-tag"></i> Coupon Title / Code</div>
+    <input class="inp" id="actTitle" placeholder="₹50 Claim  ya  all" oninput="updateAct()">
+    
+    <div class="cmd-preview" id="actPreview">couponactive ...</div>
+    
+    <div class="btn-row">
+      <button class="btn btn-clear" onclick="document.getElementById('actTitle').value='';updateAct();"><i class="fa-solid fa-eraser"></i> Clear</button>
+      <button class="btn btn-tg" onclick="runCmd('act')"><i class="fa-solid fa-copy"></i> Copy & TG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DELETE ========== -->
+<div class="card">
+  <h3><i class="fa-solid fa-trash"></i> Delete Karo</h3>
+  
+  <div class="cmd">
+    <div class="cmd-name"><i class="fa-solid fa-tag"></i> Coupon Title / Code</div>
+    <input class="inp" id="delTitle" placeholder="₹50 Claim" oninput="updateDel()">
+    
+    <div class="cmd-preview" id="delPreview">coupondelete ...</div>
+    
+    <div class="btn-row">
+      <button class="btn btn-clear" onclick="document.getElementById('delTitle').value='';updateDel();"><i class="fa-solid fa-eraser"></i> Clear</button>
+      <button class="btn btn-tg" onclick="runCmd('del')"><i class="fa-solid fa-copy"></i> Copy & TG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LIST ========== -->
+<div class="card">
+  <h3><i class="fa-solid fa-list"></i> List Dekho</h3>
+  
+  <div class="cmd">
+    <div class="cmd-preview" style="margin-bottom:8px;">couponlist</div>
+    <div class="btn-row">
+      <button class="btn btn-tg" style="flex:1;" onclick="runList()"><i class="fa-solid fa-copy"></i> Copy & TG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CLEAR ========== -->
+<div class="card">
+  <h3><i class="fa-solid fa-eraser"></i> Sab Clear</h3>
+  
+  <div class="cmd">
+    <div class="cmd-preview" style="margin-bottom:8px;">couponclear</div>
+    <div class="btn-row">
+      <button class="btn btn-tg" style="flex:1;" onclick="runClear()"><i class="fa-solid fa-copy"></i> Copy & TG</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PING ========== -->
+<div class="card">
+  <h3><i class="fa-solid fa-satellite-dish"></i> Bot Check</h3>
+  
+  <div class="cmd">
+    <div class="cmd-preview" style="margin-bottom:8px;">ping</div>
+    <div class="btn-row">
+      <button class="btn btn-tg" style="flex:1;" onclick="runPing()"><i class="fa-solid fa-copy"></i> Copy & TG</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  var ic='fa-check';
+  if(type==='error')ic='fa-circle-xmark';
+  else if(type==='copy')ic='fa-copy';
+  t.innerHTML='<i class="fa-solid '+ic+'"></i> '+msg;
+  t.className='show'+(type?' '+type:'');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(function(){t.className='';},2200);
+}
+
+/* ==== PREVIEW UPDATES ==== */
+function buildAdd(){
+  var img=document.getElementById('addImage').value.trim();
+  var title=document.getElementById('addTitle').value.trim();
+  var desc=document.getElementById('addDesc').value.trim();
+  var link=document.getElementById('addLink').value.trim();
+  if(!title)return 'couponadd ...';
+  var cmd='couponadd ';
+  if(img)cmd+=img+' ';
+  cmd+=title;
+  if(desc||link){
+    cmd+=' | '+(desc||' ');
+    if(link)cmd+=' | '+link;
+  }
+  return cmd;
+}
+function updateAdd(){document.getElementById('addPreview').textContent=buildAdd();}
+function clearAdd(){
+  document.getElementById('addImage').value='';
+  document.getElementById('addTitle').value='';
+  document.getElementById('addDesc').value='';
+  document.getElementById('addLink').value='';
+  updateAdd();
+}
+
+function updateExp(){var v=document.getElementById('expTitle').value.trim();document.getElementById('expPreview').textContent='couponexpire '+(v||'...');}
+function updateSoon(){var v=document.getElementById('soonTitle').value.trim();document.getElementById('soonPreview').textContent='couponsoon '+(v||'...');}
+function updateAct(){var v=document.getElementById('actTitle').value.trim();document.getElementById('actPreview').textContent='couponactive '+(v||'...');}
+function updateDel(){var v=document.getElementById('delTitle').value.trim();document.getElementById('delPreview').textContent='coupondelete '+(v||'...');}
+
+/* ==== COPY + OPEN TG ==== */
+function copyAndGo(text){
+  if(!text||text.indexOf('...')!==-1){showToast('Pehle data bharo','error');return;}
+  /* Copy */
+  try{
+    var ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.top='-1000px';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }catch(e){}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(function(){});
+  }
+  showToast('✓ Copied! Telegram khul raha hai...','copy');
+  /* Open TG */
+  setTimeout(function(){
+    var ua=navigator.userAgent||'';
+    var isMob=/Android|iPhone|iPad|iPod/i.test(ua);
+    if(isMob){
+      window.location.href='tg://';
+    } else {
+      window.open('https://web.telegram.org/','_blank');
+    }
+  },400);
+}
+
+function runCmd(type){
+  var text='';
+  if(type==='add')text=buildAdd();
+  else if(type==='exp')text='couponexpire '+document.getElementById('expTitle').value.trim();
+  else if(type==='soon')text='couponsoon '+document.getElementById('soonTitle').value.trim();
+  else if(type==='act')text='couponactive '+document.getElementById('actTitle').value.trim();
+  else if(type==='del')text='coupondelete '+document.getElementById('delTitle').value.trim();
+  copyAndGo(text);
+}
+
+function runList(){copyAndGo('couponlist');}
+function runClear(){copyAndGo('couponclear');}
+function runPing(){copyAndGo('ping');}
+
+/* Init */
+updateAdd();updateExp();updateSoon();updateAct();updateDel();
+</script>
+</body>
+</html>
